@@ -1,0 +1,58 @@
+# SELF-BUILD ONLY: app services use build: (local Dockerfile); brokers use official image:.
+name: mig-20-webhook-delivery-system-1-outbox-and-idempotent-delivery-java
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  receiver-mock:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      PORT: "3000"
+      SPRING_PROFILES_ACTIVE: "receiver"
+      SPRING_DATA_REDIS_URL: "redis://redis:6379"
+      FAIL_FIRST_N_ATTEMPTS: "2"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  emitter:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      PORT: "3000"
+      SPRING_PROFILES_ACTIVE: "emitter"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/app"
+      SPRING_DATASOURCE_USERNAME: "app"
+      SPRING_DATASOURCE_PASSWORD: "app"
+      SPRING_DATA_REDIS_URL: "redis://redis:6379"
+      RECEIVER_URL: "http://receiver-mock:3000/api/hook"
+    ports:
+      - "${EMITTER_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      receiver-mock:
+        condition: service_started

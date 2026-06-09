@@ -1,0 +1,14 @@
+{
+  "name": "outbox-idempotent-emitter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Transactional outbox + skip-locked poller emitter and idempotent receiver-mock",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:receiver": "node receiver/src/index.js"
+  },
+  "dependencies": {
+    "ioredis": "5.4.1",
+    "pg": "8.11.5"
+  }
+}

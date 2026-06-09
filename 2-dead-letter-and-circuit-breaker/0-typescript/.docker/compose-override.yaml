@@ -1,0 +1,10 @@
+services:
+  emitter:
+    ports:
+      - "3002:3000"
+  postgres:
+    ports:
+      - "5432:5432"
+  redis:
+    ports:
+      - "6379:6379"

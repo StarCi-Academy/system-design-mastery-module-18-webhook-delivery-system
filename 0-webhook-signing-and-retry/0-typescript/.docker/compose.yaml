@@ -1,0 +1,35 @@
+name: webhook-signing-ts
+
+services:
+  emitter:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: 0-webhook-signing-and-retry-emitter
+    environment:
+      ROLE: emitter
+      PORT: 3000
+      WEBHOOK_SECRET: shared-secret-demo
+      MAX_ATTEMPTS: 3
+    ports:
+      - "3000:3000"
+    depends_on:
+      - receiver-mock
+    networks:
+      - webhook-network
+
+  receiver-mock:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: 0-webhook-signing-and-retry-receiver-mock
+    environment:
+      ROLE: receiver
+      PORT: 3000
+      WEBHOOK_SECRET: shared-secret-demo
+    networks:
+      - webhook-network
+
+networks:
+  webhook-network:
+    driver: bridge

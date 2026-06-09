@@ -1,0 +1,45 @@
+server:
+  port: ${PORT:3000}
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:emitter}
+  data:
+    redis:
+      url: ${SPRING_DATA_REDIS_URL:redis://redis:6379}
+
+app:
+  fail-first-n-attempts: ${FAIL_FIRST_N_ATTEMPTS:0}
+  idem-ttl-seconds: ${IDEM_TTL_SECONDS:86400}
+  receiver-url: ${RECEIVER_URL:http://receiver-mock:3000/api/hook}
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+
+---
+# emitter profile: full JPA + datasource + poller.
+spring:
+  config:
+    activate:
+      on-profile: emitter
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/app}
+    username: ${SPRING_DATASOURCE_USERNAME:app}
+    password: ${SPRING_DATASOURCE_PASSWORD:app}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+---
+# receiver profile: no database — exclude JPA/datasource autoconfiguration.
+spring:
+  config:
+    activate:
+      on-profile: receiver
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration

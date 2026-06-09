@@ -1,0 +1,9 @@
+server:
+  port: ${PORT:3000}
+  address: 0.0.0.0
+
+# Shared defaults; overridden by env vars in compose.
+WEBHOOK_SECRET: ${WEBHOOK_SECRET:shared-secret-demo}
+MAX_ATTEMPTS: ${MAX_ATTEMPTS:3}
+WINDOW_SECONDS: ${WINDOW_SECONDS:300}
+ROLE: ${ROLE:emitter}

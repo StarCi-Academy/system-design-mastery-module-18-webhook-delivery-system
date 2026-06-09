@@ -1,0 +1,55 @@
+name: dead-letter-circuit-breaker-go
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: 2-dead-letter-and-circuit-breaker-go-postgres
+    environment:
+      POSTGRES_USER: webhook
+      POSTGRES_PASSWORD: webhook
+      POSTGRES_DB: webhook
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webhook -d webhook"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks:
+      - webhook-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: 2-dead-letter-and-circuit-breaker-go-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks:
+      - webhook-network
+
+  emitter:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: 2-dead-letter-and-circuit-breaker-go-emitter
+    environment:
+      PORT: 3000
+      POSTGRES_URL: postgres://webhook:webhook@postgres:5432/webhook
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - webhook-network
+
+networks:
+  webhook-network:
+    driver: bridge

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>WebhookSigning</RootNamespace>
+    <AssemblyName>webhook-signing-and-retry</AssemblyName>
+  </PropertyGroup>
+
+</Project>

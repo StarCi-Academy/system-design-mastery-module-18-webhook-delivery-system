@@ -1,0 +1,18 @@
+server:
+  port: ${PORT:3000}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:webhook}
+    username: ${POSTGRES_USER:webhook}
+    password: ${POSTGRES_PASSWORD:webhook}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
